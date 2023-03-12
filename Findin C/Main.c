@@ -159,7 +159,7 @@ size_t FindIn(char* search, char* filePath, char* subDirectoryToShow) {
 		lineSize++;
 
 		if (line == 0) {
-			line = malloc(sizeof(char) + 1);
+			line = malloc(sizeof(c) + 1);
 
 			if (line == 0) {
 				exit(1);
@@ -171,7 +171,7 @@ size_t FindIn(char* search, char* filePath, char* subDirectoryToShow) {
 		}
 		else {
 			char* oldLineBuffer = line;
-			line = realloc(line, sizeof(char) * (lineSize + 1));
+			line = realloc(line, sizeof(c) * (lineSize + 1));
 
 			if (line == 0) {
 				free(oldLineBuffer);
