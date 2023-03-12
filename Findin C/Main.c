@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 	if (bytesWritten == 0) {
 		printf("Couldn't find current directory");
-		exit(1);
+		return 1;
 	}
 #else
 	char* fileExtension = ".cs";
