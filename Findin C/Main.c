@@ -3,7 +3,7 @@
 #include <string.h>
 #include <Windows.h>
 
-size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, char* currentSubDirectory);
+size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, char* currentSubDirectory, size_t* files);
 size_t FindIn(char* search, char* filePath, char* subDirectoryToShow);
 inline int EndsWith(char* str, char* subStr);
 inline char* GetInnermostFileNameInPath(char* filePath);
@@ -27,24 +27,26 @@ int main(int argc, char** argv) {
     return 1;
   }
 #else
-  char* fileExtension = ".c";
+  char* fileExtension = ".cs";
   char* search = "void";
 
   char currentDirectoryBuffer[MAX_PATH];
-  char* path = "D:\\repos";
+  char* path = "D:\\repos\\PokemonAdventureGame";
 
   strncpy_s(currentDirectoryBuffer, MAX_PATH, path, strlen(path));
 #endif
   char* innermostDirectory = GetInnermostFileNameInPath(currentDirectoryBuffer);
 
-  size_t occurrences = FindInCurrentDirectory(currentDirectoryBuffer, search, fileExtension, innermostDirectory);
+  size_t files = 0;
 
-  printf("Found a total of %zd occurrences.\n", occurrences);
+  size_t occurrences = FindInCurrentDirectory(currentDirectoryBuffer, search, fileExtension, innermostDirectory, &files);
+
+  printf("Found a total of %zd occurrences. Searched in %zd files.\n", occurrences, files);
 
   return 0;
 }
 
-size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, char* currentSubDirectory) {
+size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, char* currentSubDirectory, size_t* files) {
   WIN32_FIND_DATA w32fd = { 0 };
   HANDLE hFind;
 
@@ -90,7 +92,7 @@ size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, cha
       strncat_s(subDirectoryPath, MAX_PATH, "\\", 2);
       strncat_s(subDirectoryPath, MAX_PATH, fileName, strlen(fileName));
 
-      totalOccurrences += FindInCurrentDirectory(subDirectoryPath, search, fileExtension, subDirectoryToShow);
+      totalOccurrences += FindInCurrentDirectory(subDirectoryPath, search, fileExtension, subDirectoryToShow, files);
     }
     else if (w32fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE && EndsWith(fileName, fileExtension)) {
       char path[MAX_PATH] = { 0 };
@@ -101,6 +103,7 @@ size_t FindInCurrentDirectory(char* path, char* search, char* fileExtension, cha
       strncat_s(path, MAX_PATH, fileName, strlen(fileName));
 
       totalOccurrences += FindIn(search, path, subDirectoryToShow);
+      (*files)++;
     }
   } while (FindNextFileA(hFind, (LPWIN32_FIND_DATAA)&w32fd));
 
